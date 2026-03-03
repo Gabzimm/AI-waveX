@@ -1,7 +1,7 @@
 // chat.js - Integração com a API AI WaveX
 
 // Configuração - COLOQUE SUA URL DO RENDER AQUI
-const API_URL = 'https://seu-app-name.onrender.com'; // Mude para sua URL real
+const API_URL = 'https://api-ai-3v4b.onrender.com'; // Mude para sua URL real
 let sessionId = localStorage.getItem('wavex_session') || 'wavex_' + Date.now();
 let conversationHistory = [];
 
