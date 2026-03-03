@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI WaveX - Chat com IA</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Estilos específicos do chat */
+        .chat-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 100px 5% 50px;
+        }
+        
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: var(--gradient);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .chat-header-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .chat-header-text h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+        
+        .chat-header-text p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .chat-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-header-actions button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .chat-header-actions button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        
+        .user-message .message-bubble {
+            background: var(--gradient);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message .message-bubble {
+            background: white;
+            color: var(--dark);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-bottom-left-radius: 5px;
+        }
+        
+        .error-message .message-bubble {
+            background: #ffeaa7;
+            color: #e17055;
+            border: 1px solid #fdcb6e;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        .user-message .message-time {
+            text-align: right;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--gray);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); background: var(--primary); }
+        }
+        
+        .chat-input-container {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chat-input-container textarea {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            resize: none;
+            max-height: 150px;
+            font-family: inherit;
+        }
+        
+        .chat-input-container textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        }
+        
+        .chat-input-container button {
+            width: 60px;
+            height: 60px;
+            border: none;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+        
+        .chat-input-container button:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+        }
+        
+        .chat-input-container button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: var(--gray);
+            padding: 50px 20px;
+        }
+        
+        .welcome-message i {
+            font-size: 4rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-message h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .token-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        @media (max-width: 768px) {
+            .chat-page {
+                padding: 80px 0 0;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 80px);
+                border-radius: 0;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <span>AI WaveX</span>
+        </div>
+        
+        <div class="nav-links">
+            <a href="index.html">Início</a>
+            <a href="chat.html" class="active">Chat</a>
+            <a href="sobre.html">Sobre</a>
+            <a href="contato.html">Contato</a>
+        </div>
+        
+        <div class="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Chat Page -->
+    <div class="chat-page">
+        <div class="chat-container">
+            <!-- Header do Chat -->
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-header-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="chat-header-text">
+                        <h2>AI WaveX</h2>
+                        <p><i class="fas fa-circle" style="color: #00b894; font-size: 0.5rem;"></i> Online - Pronto para ajudar</p>
+                    </div>
+                </div>
+                
+                <div class="chat-header-actions">
+                    <button onclick="exportConversation()" title="Exportar conversa">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button onclick="clearConversation()" title="Limpar chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Área de Mensagens -->
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-message">
+                    <i class="fas fa-robot"></i>
+                    <h3>Bem-vindo à AI WaveX!</h3>
+                    <p>Comece a conversar digitando sua mensagem abaixo.</p>
+                </div>
+            </div>
+            
+            <!-- Indicador de Digitação -->
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="message-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <!-- Input do Chat -->
+            <div class="chat-input-container">
+                <textarea 
+                    id="user-input" 
+                    placeholder="Digite sua mensagem..." 
+                    rows="1"
+                ></textarea>
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Token Counter -->
+    <div class="token-counter" id="token-count">
+        Tokens usados: 0
+    </div>
+
+    <script src="chat.js"></script>
+    <script>
+        // Ajusta altura do textarea automaticamente
+        document.getElementById('user-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Menu mobile
+        document.querySelector('.mobile-menu').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
